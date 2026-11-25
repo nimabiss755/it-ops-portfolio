@@ -1,0 +1,4 @@
+# 保持脚本原始编码与 CRLF 换行，避免 Windows 上中文乱码
+*.ps1 -text
+*.cmd -text
+*.bat -text
