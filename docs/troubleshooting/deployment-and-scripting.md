@@ -4,14 +4,14 @@
 
 - **现象**：部署脚本执行 `Add-Computer` 入域后，紧接着把域账号加入本地 Administrators，报错 1789（此工作站和主域间的信任关系失败）
 - **原因**：入域后还没重启，计算机与域控的安全通道尚未建立完成，无法解析域账号
-- **处理**：入域后不要立即执行加组；改为重启后再执行，或加入重试等待逻辑
-- **备注**：这类"时序问题"在交互操作时不容易发现，只有写成无人值守脚本、步骤紧挨着执行时才会暴露
+- **处理**：把流程拆成两次运行：第一次只入域并重启；重启后用域管理员登录，第二次运行再把使用人加入本地管理员组，并按 SID 回查确认
+- **备注**：这类"时序问题"在手工操作时不容易发现，只有写成脚本、步骤紧挨着执行时才会暴露。对应脚本：[tools/domain-join](../../tools/domain-join/)
 
 ## PowerShell 5.1 不支持 `Start-Process -UseShellExecute`
 
 - **现象**：脚本在 PowerShell 7 测试正常，在 Win10/11 自带的 Windows PowerShell 5.1 上报参数不存在
 - **原因**：`UseShellExecute` 是 `System.Diagnostics.ProcessStartInfo` 的属性，不是 5.1 中 `Start-Process` 的参数
-- **处理**：按 5.1 能力编写；需要控制 ShellExecute 时直接构造 `ProcessStartInfo`
+- **处理**：按 5.1 能力编写；需要控制 ShellExecute 时直接构造 `ProcessStartInfo`。部署脚本里正是用 `UseShellExecute = false` 让安装包继承管理员令牌，避免二次弹 UAC
 - **备注**：企业终端默认只有 5.1，部署脚本必须以 5.1 为准测试
 
 ## 中文脚本乱码、窗口一闪而过、`TerminatorExpectedAtEndOfString`
